@@ -13,11 +13,11 @@ public class main {
 		sol.print("./output/out.txt");
 		
 		Solver sol1 = new Solver("./input/mother_of_all_warehouses.in");
-		sol.Simple();
+		sol1.Simple();
 		sol1.print("./output/out1.txt");
 		
 		Solver sol2 = new Solver("./input/redundancy.in");
-		sol.Simple();
+		sol2.Simple();
 		sol2.print("./output/out2.txt");
 		
 	}

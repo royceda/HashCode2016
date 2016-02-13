@@ -16,7 +16,7 @@ public class Order {
 	public int getOne(){
 		for(int i = 0; i < qty.length; i++){
 			if(qty[i] > 0){
-				qty[i] -= 1;
+				qty[i]--;
 				return i;
 			}
 		}

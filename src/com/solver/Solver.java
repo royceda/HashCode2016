@@ -35,8 +35,9 @@ public class Solver {
 	
 	
 	public Warehouse getWarehouse(int type){
-		for(Iterator<Warehouse> ite = parse.getWarehouses().iterator(); ite.hasNext(); ){
-			Warehouse wa = ite.next();
+		//for(Iterator<Warehouse> ite = parse.getWarehouses().iterator(); ite.hasNext(); ){
+		//Warehouse wa = ite.next();
+		for(Warehouse wa: parse.getWarehouses()){	
 			if(wa.hasType(type))
 				return wa;
 		}
@@ -78,20 +79,25 @@ public class Solver {
 	 */
 	public void Simple() throws FileNotFoundException, UnsupportedEncodingException{
 		System.out.println("Solving.....");
+		//turns
 		for(int t = 0; t<parse.getT(); t++){
 			//System.out.println("time: "+t);
 			MAJ();
-			for(Iterator<Order> ite = parse.getOrders().iterator(); ite.hasNext(); ){
-				Order tmpOrder = ite.next();
+			
+			//for(Iterator<Order> ite = parse.getOrders().iterator(); ite.hasNext(); ){
+			//Order tmpOrder = ite.next();
+			for(Order tmpOrder : parse.getOrders()){	
 				if(tmpOrder.hasDemand()){	
 					
 					int type = tmpOrder.getOne();
-					for(Iterator<Drone> ite1 = fleet.iterator(); ite1.hasNext(); ){
-						Drone tmp = ite1.next();
-						
+					//for(Iterator<Drone> ite1 = fleet.iterator(); ite1.hasNext(); ){
+					//Drone tmp = ite1.next();
+					boolean taken = false;
+					
+					for(Drone tmp: fleet){	
 						if(tmp.getStatus() == "W"){			
 							Warehouse wa = getWarehouse(type);
-							if(wa != null){
+							if(wa != null && !taken){
 								//warehouse
 								wa.giveOne(type);
 								
@@ -107,6 +113,7 @@ public class Solver {
 								String instL = "" + tmp.getName() + " L " + wa.getName() + " "+ tmp.getType() + " 1 ";
 								System.out.println(instL);
 								instruction.add(instL);
+								taken = true;
 							}
 						}
 							

@@ -16,12 +16,15 @@ public class Drone {
 	private int processing;
 	private int order;
 	
+	private boolean loaded;
+	
 	public Drone(int name){
 		setProcessing(0);
 		this.setName(name);
 		setR(0);
 		setC(0);
 		setStatus("W");
+		setLoaded(false);
 	}
 	
 	public int nextWarehouse(List<Warehouse> warehouses){
@@ -98,6 +101,14 @@ public class Drone {
 
 	public void setWarehouse(int warehouse) {
 		this.warehouse = warehouse;
+	}
+
+	public boolean isLoaded() {
+		return loaded;
+	}
+
+	public void setLoaded(boolean loaded) {
+		this.loaded = loaded;
 	}
 	
 	

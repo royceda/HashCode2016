@@ -17,15 +17,15 @@ public class Parser {
 	private int c;
 	private int D;
 	private int T;
-	private int P;
+	private int P; // payload
 	
 	private int n;
 	private int[] weight;
 	
-	private int wh;
+	private int wh;//how many warehouses
 	private List<Warehouse> warehouses;
 	
-	private int no;
+	private int no; //how many orders
 	private List<Order> orders;
 	
 	
@@ -115,6 +115,7 @@ public class Parser {
 				tmp.setR(Integer.parseInt(var[0]));
 				tmp.setC(Integer.parseInt(var[1]));						
 			}
+			
 			//number of item
 			if((line = br.readLine()) != null){
 				String[] var = line.split(" ");
@@ -126,7 +127,8 @@ public class Parser {
 			if((line = br.readLine()) != null){
 				String[] var = line.split(" ");
 				for(int j = 0; j < tmp.getN(); j++){
-					demandTmp[j] = Integer.parseInt(var[j]);
+					int index = Integer.parseInt(var[j]);
+					demandTmp[index] += 1; 
 				}
 				tmp.setqty(demandTmp);
 			}	
