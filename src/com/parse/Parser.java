@@ -29,6 +29,11 @@ public class Parser {
 	private List<Order> orders;
 	
 	
+	public int[] getWeight(){
+		return weight;
+	}
+	
+	
 	public List<Order> getOrders(){
 		return orders;
 	}
@@ -56,7 +61,7 @@ public class Parser {
 			setC(Integer.parseInt(var[1]));
 			setD(Integer.parseInt(var[2]));
 			setT(Integer.parseInt(var[3]));
-			P = Integer.parseInt(var[4]);	
+			setP(Integer.parseInt(var[4]));	
 		}
 		
 		
@@ -174,5 +179,13 @@ public class Parser {
 
 	public void setT(int t) {
 		T = t;
+	}
+
+	public int getP() {
+		return P;
+	}
+
+	public void setP(int p) {
+		P = p;
 	}
 }

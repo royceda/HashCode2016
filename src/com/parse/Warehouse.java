@@ -8,6 +8,10 @@ public class Warehouse {
 	private int[] avail;
 	
 	
+	public Warehouse(){
+		
+	}
+	
 	public Warehouse(int i){
 		name = i;
 		r = 0;
@@ -21,7 +25,14 @@ public class Warehouse {
 		this.setAvail(avail);
 	}
 
-
+	public Warehouse(Warehouse wa){
+		this.setName(wa.getName());
+		this.setR(wa.getR());
+		this.setC(wa.getC());
+		this.setAvail(wa.getAvail());
+	}
+	
+	
 	public void giveOne(int i){
 		avail[i] -= 1;
 	}

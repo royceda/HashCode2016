@@ -29,7 +29,7 @@ public class Solver {
 	
 		this.file = file;
 		for(int i = 0; i<parse.getD(); i++){
-			fleet.add(new Drone(i));
+			fleet.add(new Drone(i, parse.getP()));
 		}
 	}
 	
@@ -42,6 +42,43 @@ public class Solver {
 				return wa;
 		}
 		return null;
+	}
+	
+	public Warehouse getWarehouse(Drone d){
+		int dist0 = 10000000;
+		Warehouse tmp = new Warehouse();
+		for(Warehouse wa: parse.getWarehouses()){
+			int dist1 = distanceL(d, wa);
+			if(dist0 > dist1){
+				dist0 = dist1;
+				tmp = new Warehouse(wa);
+			}
+		}
+		return tmp;
+	}
+	
+	public Order getOrder(Warehouse wa){
+		int dist0 = 10000000;
+		Order tmpO = new Order();
+		for(Order tmp: parse.getOrders()){
+			int dist1 = distance(wa, tmp);
+			if(dist0 > dist1){
+				dist0 = dist1;
+				tmpO = new Order(tmp);
+			}
+		}
+		return tmpO;
+	}
+	
+	
+	public int distance(Warehouse w, Order d){
+		double f = 0;	
+		f = Math.sqrt(Math.abs(d.getR()*d.getR() - w.getR()) + Math.abs(d.getR()*d.getR() - w.getR()));
+		int dist = (int) Math.floor(f);
+		if(f > dist)
+			return dist+1;
+		else
+			return dist;	
 	}
 	
 	public int distanceL(Drone d, Warehouse w){
@@ -128,6 +165,7 @@ public class Solver {
 							String instD = "" + tmp.getName() + " D " + tmp.getOrder() + " "+ tmp.getType() + " 1 ";
 							System.out.println(instD);
 							instruction.add(instD);
+							
 						}
 						
 						else if(tmp.getStatus() == "D" && tmp.getProcessing() == 0){			
@@ -145,10 +183,89 @@ public class Solver {
 				}
 			}
 		}
-		
-		
-		
 	}
+	
+	
+	public void multipleLoad(){
+		//load all drone with all items it can take with order
+		//when the drone is loading in warehouse, he takes orders with available items
+		//and it goes for delivery
+		System.out.println("Solving.....");
+		for(int t = 0; t<parse.getT(); t++){
+			//System.out.println("time: "+t);
+			MAJ();	
+			for(Drone tmp: fleet){
+				if(tmp.getStatus() == "W"){			
+					Warehouse wa = getWarehouse(tmp);
+					Order tmpOrder = getOrder(wa);
+					//for(Order tmpOrder : parse.getOrders()){
+						for(int i = 0; i < tmpOrder.getN(); i++){
+							if(tmpOrder.hasDemand() && !tmp.isLoaded()){
+								
+								int type = tmpOrder.getOne(wa);
+								if(type != -1 && tmp.canTake(type, parse.getWeight()[type])){							
+									tmpOrder.getOne(type);
+	
+									//duplicated code
+									wa.giveOne(type);
+									
+									tmp.setProcessing(distanceL(tmp, wa));
+									
+									tmp.setR(wa.getR());
+									tmp.setC(wa.getC());
+									tmp.setType(type);
+									tmp.setStatus("L");
+									tmp.setOrder(tmpOrder.getName());	
+									tmp.setWarehouse(wa.getName());
+									
+									tmp.load(type, parse.getWeight()[type]);
+									
+									
+									String instL = "" + tmp.getName() + " L " + wa.getName() + " "+ tmp.getType() + " 1 ";
+									System.out.println(instL);
+									instruction.add(instL);					
+								}		
+							}
+					}
+				}
+			
+				else if(tmp.getStatus() == "L" && tmp.getProcessing() == 0){			
+					Order tmpOrder = parse.getOrders().get(tmp.getOrder()); 
+					//order
+					tmp.setR(tmpOrder.getR());
+					tmp.setC(tmpOrder.getC());
+					tmp.setStatus("D");
+					
+					tmp.setProcessing(distanceD(tmp, tmpOrder));
+					
+					for(Iterator<Integer> ite = tmp.getOrders().iterator(); ite.hasNext();){
+						int type = ite.next();
+						String instD = "" + tmp.getName() + " D " + tmp.getOrder() + " "+ type + " 1 ";
+						System.out.println(instD);
+						instruction.add(instD);
+					}
+					
+				}
+				
+				
+				else if(tmp.getStatus() == "D" && tmp.getProcessing() == 0){	
+					Order tmpOrder = parse.getOrders().get(tmp.getOrder()); 
+					tmp.setR(tmpOrder.getR());
+					tmp.setC(tmpOrder.getC());
+					tmp.setStatus("W");
+					
+					tmp.setProcessing(distanceD(tmp, tmpOrder));
+					
+					String instD = "" + tmp.getName() + " W " + t ;
+					System.out.println(instD);
+					instruction.add(instD);	
+				}
+			}	
+		}
+	}
+
+
+	
 	
 	public void print(String file1) throws FileNotFoundException, UnsupportedEncodingException{
 		PrintWriter writer = new PrintWriter(file1, "UTF-8");

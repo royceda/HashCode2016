@@ -23,6 +23,22 @@ public class Order {
 		return -1;
 	}
 	
+	public int getOne(Warehouse wa){
+		for(int i = 0; i < qty.length; i++){
+			if(qty[i] > 0 && wa.hasType(i)){
+				//qty[i]--;
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	public int getOne(int type){
+		qty[type]--;
+		return type;
+	}
+	
+	
 	public boolean hasDemand(){
 		for(int i = 0; i < qty.length; i++){
 			if(qty[i] != 0)
@@ -38,6 +54,18 @@ public class Order {
 		setC(0);
 		setN(0);
 		//setQty(new int[0]);
+	}
+
+	public Order() {
+		// TODO Auto-generated constructor stub
+	}
+
+	public Order(Order tmp) {
+		setName(tmp.getName());
+		setR(tmp.getR());
+		setC(tmp.getC());
+		setN(tmp.getN());
+		setQty(tmp.getQty());
 	}
 
 	public int getR() {

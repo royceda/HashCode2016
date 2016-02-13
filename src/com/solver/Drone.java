@@ -1,5 +1,6 @@
 package com.solver;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.parse.Order;
@@ -16,7 +17,9 @@ public class Drone {
 	private int processing;
 	private int order;
 	
+	private int payload;
 	private boolean loaded;
+	private List<Integer> orders; //used as fifo
 	
 	public Drone(int name){
 		setProcessing(0);
@@ -25,7 +28,23 @@ public class Drone {
 		setC(0);
 		setStatus("W");
 		setLoaded(false);
+		orders = new ArrayList<Integer>();
 	}
+	
+	
+	public Drone(int name, int payload){
+		setProcessing(0);
+		this.setName(name);
+		setR(0);
+		setC(0);
+		setStatus("W");
+		setLoaded(false);
+		setPayload(payload);
+		orders = new ArrayList<Integer>();
+	}
+	
+	
+	
 	
 	public int nextWarehouse(List<Warehouse> warehouses){
 		
@@ -109,6 +128,44 @@ public class Drone {
 
 	public void setLoaded(boolean loaded) {
 		this.loaded = loaded;
+	}
+
+
+	public int getPayload() {
+		return payload;
+	}
+
+
+	public void setPayload(int payload) {
+		this.payload = payload;
+	}
+
+
+	public List<Integer> getOrders() {
+		return orders;
+	}
+
+
+	public void setOrders(List<Integer> orders) {
+		this.orders = orders;
+	}
+
+	
+	public boolean canTake(int type, int weight){
+		if(payload - weight < 0)
+			return false;
+		else 
+			return true;
+	}
+
+	public void load(int type2, int weight) {
+		orders.add(type2);
+		payload -= weight;
+		if(payload == 0)
+			loaded = true;
+		else
+			loaded = false;
+		
 	}
 	
 	
