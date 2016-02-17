@@ -7,15 +7,17 @@ import com.solver.Solver;
 public class main {
 
 	public static void main(String[] args) throws FileNotFoundException, IOException {
-		//Parser parse = new Parser();
+		
+		
 		Solver sol = new Solver("./input/busy_day.in");
-		sol.Simple();
-		//sol.multipleLoad();
+		//sol.Simple();
+		sol.multiple();
 		sol.print("./output/out.txt");
 		
 		System.out.println("Sol1: done");
 		
 		
+		/*
 		Solver sol1 = new Solver("./input/mother_of_all_warehouses.in");
 		sol1.Simple();
 		sol1.print("./output/out1.txt");
@@ -27,7 +29,8 @@ public class main {
 		sol2.Simple();
 		sol2.print("./output/out2.txt");
 		
-		System.out.println("Sol3: done");
+		System.out.println("Sol3: done");*/
 	}
+	
 
 }

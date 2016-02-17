@@ -9,6 +9,9 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.*;
 
+import com.localisation.Order;
+import com.localisation.Warehouse;
+
 
 
 public class Parser {
@@ -23,11 +26,27 @@ public class Parser {
 	private int[] weight;
 	
 	private int wh;//how many warehouses
-	private List<Warehouse> warehouses;
+	//private List<Warehouse> warehouses;
+	
+	private HashMap<Integer, Warehouse> warehouses;
 	
 	private int no; //how many orders
 	private List<Order> orders;
 	
+	//private HashMap<Integer, Order> orders;
+	
+	
+	public int nbCommande(){
+		int n = 0;
+		for(Iterator<Order> ite = orders.iterator(); ite.hasNext();){
+			n += ite.next().getN();
+		}
+		return n;	
+	}
+	
+	public int getNo(){
+		return no;
+	}
 	
 	public int[] getWeight(){
 		return weight;
@@ -38,7 +57,7 @@ public class Parser {
 		return orders;
 	}
 	
-	public List<Warehouse> getWarehouses(){
+	public HashMap<Integer, Warehouse> getWarehouses(){
 		return warehouses;
 	}
 	
@@ -50,7 +69,7 @@ public class Parser {
 		InputStreamReader isr = new InputStreamReader(fis, Charset.forName("UTF-8"));
 		BufferedReader br = new BufferedReader(isr);
 		
-		warehouses = new ArrayList<Warehouse>();
+		warehouses = new HashMap<Integer, Warehouse>();
 		orders = new ArrayList<Order>();
 		
 		
@@ -100,9 +119,9 @@ public class Parser {
 				for(int j = 0; j < n; j++){
 					availTmp[j] = Integer.parseInt(var[j]);
 				}
-				tmp.setAvail(availTmp);
+				tmp.setStock(availTmp);
 			}
-			warehouses.add(tmp);
+			warehouses.put(tmp.getId(), tmp);
 		}
 			
 			
@@ -135,11 +154,28 @@ public class Parser {
 					int index = Integer.parseInt(var[j]);
 					demandTmp[index] += 1; 
 				}
-				tmp.setqty(demandTmp);
+				tmp.setDemands(demandTmp);
 			}	
 		
 			orders.add(tmp);	
 		}
+		
+		//sorting of order
+		Collections.sort(orders, new Comparator<Order>() {
+			@Override
+	        public int compare(Order o1, Order o2)
+	        {
+				 if(o1.getN() == o2.getN())
+					 return 0;
+				 else if ( o1.getN() < o2.getN())
+					 return -1;
+				 else if( o1.getN() > o2.getN())
+					 return 1;
+				 return 0;
+	        }
+	    });
+		
+		
 		System.out.println("parse: ok!");
 	}
 
@@ -153,6 +189,14 @@ public class Parser {
 		this.r = r;
 	}
 
+	public int getN() {
+		return n;
+	}
+
+
+	public void setN(int r) {
+		this.n = r;
+	}
 
 	public int getC() {
 		return c;
