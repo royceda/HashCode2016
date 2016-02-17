@@ -1,6 +1,8 @@
 package com.localisation;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -15,7 +17,7 @@ public class Warehouse extends Localisation {
 	private List<Order> orders;
 	
 	
-	
+	public int nb;
 	
 	public Warehouse(){
 		
@@ -52,6 +54,19 @@ public class Warehouse extends Localisation {
 	 */
 	public void giveOne(int i){
 		stock[i] -= 1;
+	}
+	
+	/**
+	 * a new order
+	 * @return
+	 */
+	public Order giveOrder(){
+		for(Order tmp: orders){
+			if(tmp.hasDemand()){
+				return tmp;
+			}
+		}
+		return null;
 	}
 	
 	
@@ -102,7 +117,7 @@ public class Warehouse extends Localisation {
 	}
 	
 	public void addInWait(int type){
-		
+		this.inWait[type]++;
 	}
 	
 	/**
@@ -113,6 +128,7 @@ public class Warehouse extends Localisation {
 		int[] tmp = new int[n];
 		demand = new int[n];
 		plus = new int[n];
+		inWait = new int[n];
 		
 		for(Iterator<Order> ite = orders.iterator(); ite.hasNext();){
 			Order tmpO = ite.next();
@@ -164,6 +180,35 @@ public class Warehouse extends Localisation {
 		return fleet;
 	}
 	
+	
+	public void affect(List<Drone> list){
+		List<Drone> fleet = getFleet(list);
+		Collections.sort(orders, new Comparator<Order>() {
+			@Override
+	        public int compare(Order o1, Order o2)
+	        {
+				 if(o1.getN() == o2.getN())
+					 return 0;
+				 else if ( o1.getN() < o2.getN())
+					 return -1;
+				 else if( o1.getN() > o2.getN())
+					 return 1;
+				 return 0;
+	        }
+	    });
+		
+		int c = 0;
+		for(Drone tmp: fleet){
+			if(tmp.isDelivrer()){
+				tmp.setOrder(orders.get(c).getId());
+				c++;
+			}
+		}
+		
+	}
+	
+	
+	
 	/**
 	 * How many object ordered
 	 * @return
@@ -173,6 +218,7 @@ public class Warehouse extends Localisation {
 		for(Iterator<Order> ite = orders.iterator(); ite.hasNext();){
 			n += ite.next().getN();
 		}
+		nb = n;
 		return n;
 	}
 	

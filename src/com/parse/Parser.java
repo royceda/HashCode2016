@@ -33,14 +33,22 @@ public class Parser {
 	private int no; //how many orders
 	private List<Order> orders;
 	
-	//private HashMap<Integer, Order> orders;
+	public HashMap<Integer, Order> mapOrders;
 	
+	public int nb;
+	
+	
+	
+	public int getWh(){
+		return wh;
+	}
 	
 	public int nbCommande(){
 		int n = 0;
 		for(Iterator<Order> ite = orders.iterator(); ite.hasNext();){
 			n += ite.next().getN();
 		}
+		nb = n;
 		return n;	
 	}
 	
@@ -176,6 +184,13 @@ public class Parser {
 	    });
 		
 		
+		mapOrders = new HashMap<Integer, Order>();
+		for(Order tmp: orders)
+			mapOrders.put(tmp.getId(), tmp);
+			
+		
+		
+		this.nbCommande();
 		System.out.println("parse: ok!");
 	}
 

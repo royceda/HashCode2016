@@ -141,24 +141,26 @@ public class Solver {
 		for(Integer key: parse.getWarehouses().keySet()){
 			Warehouse wa = parse.getWarehouses().get(key);
 
-			int total = parse.nbCommande();
-			int n = wa.nbCommande();//nb commandes de wa
-			int nd = (int) Math.floor(total/n)+1;
-
-			for(int i = 0; i<nd; i++){	
-				if(nd <= list.size()){
+			if(wa.hasDemand()){
+				int d = list.size() - parse.getWh();
+				int total = parse.nb;
+				int n = wa.nbCommande();//nb commandes de wa
+				int nd = (int) Math.floor(n*d/total);
+				
+				for(int i = 0; i<list.size(); i++){	
 					Drone drone = list.get(i);
-					if(drone.isDelivrer()){
-						if(drone.getWarehouse() == -1){
-							drone.setWarehouse(wa.getId());
-						}
-						else
-							nd++;
+					if(drone.isDelivrer() && drone.getWarehouse() == -1){
+						drone.setWarehouse(wa.getId());					
 					}
 				}
 			}
 		}
 	}
+		
+	
+		
+		
+	
 	
 
 
@@ -181,20 +183,29 @@ public class Solver {
 		tmp.setC(tmpOrder.getC());
 		tmp.setStatus(status);
 		tmp.setProcessing(tmp.distance(tmpOrder));
-
-		for(int i = 0; i<parse.getN(); i++){
-			for(Iterator<Integer> ite = tmp.getItems().iterator(); ite.hasNext();){
-				int type = ite.next();
-				String instD = "" + tmp.getId() +" "+ status+" " + tmp.getOrder() + " "+ type + " 1 ";
-				System.out.println(instD);
-				instruction.add(instD);
-			}
-			tmp.getItems().clear();
+		
+		for(Iterator<Integer> ite = tmp.getItems().iterator(); ite.hasNext();){
+			int type = ite.next();
+			String instD = "" + tmp.getId() +" "+ status+" " + tmp.getOrder() + " "+ type + " 1 ";
+			System.out.println(instD);
+			instruction.add(instD);
 		}
+		tmp.getItems().clear();	
 	}
 
 
 	public void giveWait(Drone tmp, Localisation tmpOrder, int turn){
+		
+		//si facteur mettre a jour le stock
+		if(tmp.isDelivrer()){
+			Warehouse wa = parse.getWarehouses().get(tmp.getOrder());
+			for(Iterator<Integer> ite = tmp.getItems().iterator(); ite.hasNext();){
+				int type = ite.next();
+				wa.getStock()[type]++;
+			}	
+		}
+		
+		
 		tmp.setR(tmpOrder.getR());
 		tmp.setC(tmpOrder.getC());
 		tmp.setStatus("W");
@@ -235,9 +246,12 @@ public class Solver {
 		//TSP des warehouses ou reseaux
 		//definir les voisins
 		
-		
-		
-		
+		for(Integer key: parse.getWarehouses().keySet()){
+			Warehouse wa = parse.getWarehouses().get(key);
+			//affect de client
+			wa.affect(fleet);
+		}
+			
 		System.out.println("Solving....");
 		for(int t = 0; t<parse.getT(); t++){
 			MAJ();
@@ -245,50 +259,56 @@ public class Solver {
 			//placer les drones à leur warehouse et leur affecter les premier client(trié en spt)	
 			for(Drone tmp: fleet){	
 				if(tmp.getStatus() == "W"){	
+					//si livreur		
 					if(tmp.isDelivrer()){
 						Warehouse wa = parse.getWarehouses().get(tmp.getWarehouse());		
+						Order ord = parse.mapOrders.get(tmp.getOrder());
 						//verifier que la warehouse n'a pas finis
-						if(!wa.hasDemand()){
+						if(!wa.hasDemand() ){ 
 							List<Drone> tmpFleet = wa.getFleet(fleet);
-							repartition(tmpFleet);
+							parse.nb -= wa.nb; 
+							repartition(tmpFleet);//prob
 						}else{
-							Order ord = wa.getOrders().get(tmp.getOrder());
-
-							if(ord.hasDemand()){
-								//si livreur
-								for(int i = 0; i<parse.getN(); i++){
-									if(ord.getDemands()[i]>0){
-										if(wa.getStock()[i]>0){
-											if(tmp.canTake(i, parse.getWeight()[i])){			
-												giveLoad(tmp, i, wa, ord);	
-											}
-										}else{
-											wa.addInWait(i);
+							if(!ord.hasDemand()){
+								//affecté un  nouvel order
+								Order tmpord = wa.giveOrder();
+								tmp.setOrder(tmpord.getId());
+							}				
+							//on charge
+							for(int i = 0; i<parse.getN(); i++){
+								if(ord.getDemands()[i]>0){
+									if(wa.getStock()[i]>0){
+										if(tmp.canTake(i, parse.getWeight()[i])){			
+											giveLoad(tmp, i, wa, ord);	
 										}
+									}else{
+										wa.addInWait(i);
 									}
 								}					
 							}
 						}
 					}else{//facteur
-						Warehouse wa = parse.getWarehouses().get(tmp.getWarehouse());		
-						Warehouse tmpWa = parse.getWarehouses().get(tmp.getOrder());
+						Warehouse wa = parse.getWarehouses().get(tmp.getWarehouse());								
+						int c = 0;
+						Warehouse tmpWa = parse.getWarehouses().get(c);
 						for(int i = 0; i<tmpWa.getStock().length; i++){
 							if(tmpWa.demand[i] > 0 && wa.plus[i] > 0){
 								if(tmp.canTake(i, parse.getWeight()[i])){	
 									giveLoad(tmp, i, wa, tmpWa);	
 								}				
+							}else{
+								tmpWa = parse.getWarehouses().get(c); //une autre
 							}
 						}		
 					}		
-
-
+					
 
 				}else if(tmp.getStatus() == "L" && tmp.getProcessing() == 0){			
 					//livre au client
 					Warehouse wa = parse.getWarehouses().get(tmp.getOrder());
 					
 					if(tmp.isDelivrer()){
-						Order tmpOrder = wa.getOrders().get(tmp.getOrder());
+						Order tmpOrder = parse.mapOrders.get(tmp.getOrder());
 						giveDelivery(tmp, tmpOrder, "D");
 					}else{
 						Warehouse tmpOrder = parse.getWarehouses().get(tmp.getOrder());

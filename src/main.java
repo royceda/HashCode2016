@@ -10,16 +10,16 @@ public class main {
 		
 		
 		Solver sol = new Solver("./input/busy_day.in");
-		//sol.Simple();
-		sol.multiple();
+		sol.Simple();
+		//sol.multiple();
 		sol.print("./output/out.txt");
 		
 		System.out.println("Sol1: done");
 		
 		
-		/*
+		
 		Solver sol1 = new Solver("./input/mother_of_all_warehouses.in");
-		sol1.Simple();
+		sol1.multiple();
 		sol1.print("./output/out1.txt");
 		
 		System.out.println("Sol2: done");
@@ -29,7 +29,7 @@ public class main {
 		sol2.Simple();
 		sol2.print("./output/out2.txt");
 		
-		System.out.println("Sol3: done");*/
+		System.out.println("Sol3: done");
 	}
 	
 
